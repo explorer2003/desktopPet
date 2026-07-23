@@ -1,0 +1,57 @@
+name: 打包 macOS 版本
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  build-macos:
+    runs-on: macos-latest
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 安装 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 安装依赖
+        run: |
+          pip install pyinstaller PyQt5
+
+      - name: PyInstaller 打包
+        run: |
+          pyinstaller \
+            --onefile \
+            --windowed \
+            --name "桌宠" \
+            --hidden-import PyQt5.QtCore \
+            --hidden-import PyQt5.QtGui \
+            --hidden-import PyQt5.QtWidgets \
+            --osx-bundle-identifier com.zhuochong.pet \
+            pet.py
+
+      - name: 创建 DMG 安装包
+        run: |
+          # 准备 DMG 目录结构
+          mkdir -p dmg_contents
+          cp -R dist/桌宠.app dmg_contents/
+          # 创建 Applications 快捷方式
+          ln -s /Applications dmg_contents/Applications
+          # 打包为 DMG
+          hdiutil create \
+            -volname "桌宠" \
+            -srcfolder dmg_contents \
+            -ov \
+            -format UDZO \
+            桌宠-macOS.dmg
+
+      - name: 上传构建产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: 桌宠-macOS
+          path: 桌宠-macOS.dmg
+          retention-days: 90
