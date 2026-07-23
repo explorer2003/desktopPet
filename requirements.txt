@@ -1,0 +1,4 @@
+rembg>=2.0
+Pillow>=9.0
+PyQt5>=5.15
+pyinstaller>=5.0
