@@ -32,7 +32,6 @@ jobs:
             --hidden-import PyQt5.QtGui \
             --hidden-import PyQt5.QtWidgets \
             --osx-bundle-identifier com.zhuochong.pet \
-            --target-arch x86_64 \
             pet.py
 
       - name: 创建 DMG 安装包
